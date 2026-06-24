@@ -36,3 +36,406 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AmoleBet - Sign In / Sign Up</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome for Icons (Eye & Chat) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appDarkBg: '#0e1110',      /* Exact Obsidian black-green background from screenshot */
+            tabBg: '#181c19',          /* Dark gray-green for unselected elements */
+            tabSelected: '#252b27',    /* Active selected gray-green background */
+            inputBorder: '#52462a',    /* Dark gold/bronze border color around inputs */
+            brandGreen: '#00a859',     /* Exact vivid green for "Complete Registration" button */
+            chatBorder: '#00a859',     /* Green border for live chat bubble options */
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0e1110;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    /* Style inputs matching the exact screenshot form elements */
+    .amole-input-container {
+      background-color: #151916;
+      border: 1px solid #52462a;
+      border-radius: 0.75rem;
+      transition: all 0.2s ease-in-out;
+    }
+    .amole-input-container:focus-within {
+      border-color: #ffd700;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+    }
+  </style>
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between overflow-x-hidden relative pb-20 select-none">
+
+  <!-- ================= TOP MAIN PAGE CONTAINER ================= -->
+  <div class="max-w-md w-full mx-auto px-4 pt-12 flex flex-col gap-6">
+
+    <!-- Brand Logo Head -->
+    <div class="text-center flex items-center justify-center gap-1.5 py-2">
+      <span class="text-2xl font-black tracking-tight text-white">amole<span class="text-brandGreen">bet</span></span>
+    </div>
+
+    <!-- SIGN IN / SIGN UP TABS PILL (Exact duplicate of your screenshot) -->
+    <div class="grid grid-cols-2 gap-1 bg-[#141a16] p-1.5 rounded-xl border border-white/5">
+      <button onclick="switchAuthTab('signin')" id="tab-btn-signin" class="py-2.5 rounded-lg text-xs font-bold text-gray-400 transition">
+        Sign In
+      </button>
+      <button onclick="switchAuthTab('signup')" id="tab-btn-signup" class="py-2.5 rounded-lg text-xs font-bold bg-tabSelected text-white transition border border-white/5">
+        Sign Up
+      </button>
+    </div>
+
+    <!-- MAIN INTERACTIVE FORM CARD -->
+    <div class="flex flex-col gap-5 mt-2">
+
+      <!-- ─── SIGN UP MODE (Active by Default) ─── -->
+      <div id="signup-fields" class="flex flex-col gap-4">
+        
+        <!-- Phone Field -->
+        <div>
+          <label class="text-xs text-gray-400 font-bold block mb-1.5">Phone</label>
+          <div class="amole-input-container flex items-center px-4 py-1.5">
+            <span class="text-xs font-bold text-gray-400 mr-2 border-r border-white/10 pr-2">+251</span>
+            <input type="tel" id="reg-phone" placeholder="Phone" class="bg-transparent text-sm w-full text-white py-1.5 focus:outline-none font-bold">
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label class="text-xs text-gray-400 font-bold block mb-1.5">Password</label>
+          <div class="amole-input-container flex items-center px-4 py-1.5">
+            <input type="password" id="reg-password" placeholder="Password" class="bg-transparent text-sm w-full text-white py-1.5 focus:outline-none font-bold">
+            <button onclick="togglePassword('reg-password')" class="text-gray-400 text-xs px-1"><i class="fa-solid fa-eye-slash"></i></button>
+          </div>
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div>
+          <label class="text-xs text-gray-400 font-bold block mb-1.5">Confirm Password</label>
+          <div class="amole-input-container flex items-center px-4 py-1.5">
+            <input type="password" id="reg-confirm" placeholder="Confirm Password" class="bg-transparent text-sm w-full text-white py-1.5 focus:outline-none font-bold">
+            <button onclick="togglePassword('reg-confirm')" class="text-gray-400 text-xs px-1"><i class="fa-solid fa-eye-slash"></i></button>
+          </div>
+        </div>
+
+        <!-- Submit Button (Vivid Green with the custom 'X' close icon on the right from your screenshot) -->
+        <button onclick="requestVerificationSMS()" class="w-full bg-brandGreen hover:bg-[#00944e] text-white font-extrabold py-3.5 px-4 rounded-xl transition active:scale-95 text-xs tracking-wider flex justify-between items-center">
+          <span class="mx-auto pl-4">Complete Registration</span>
+          <span class="text-white/80 hover:text-white"><i class="fa-regular fa-circle-xmark text-base"></i></span>
+        </button>
+
+      </div>
+
+      <!-- ─── SIGN IN MODE (Hidden by Default) ─── -->
+      <div id="signin-fields" class="hidden flex flex-col gap-4">
+        <div>
+          <label class="text-xs text-gray-400 font-bold block mb-1.5">Phone</label>
+          <div class="amole-input-container flex items-center px-4 py-1.5">
+            <span class="text-xs font-bold text-gray-400 mr-2 border-r border-white/10 pr-2">+251</span>
+            <input type="tel" id="login-phone" placeholder="Phone" class="bg-transparent text-sm w-full text-white py-1.5 focus:outline-none font-bold">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs text-gray-400 font-bold block mb-1.5">Password</label>
+          <div class="amole-input-container flex items-center px-4 py-1.5">
+            <input type="password" id="login-password" placeholder="Password" class="bg-transparent text-sm w-full text-white py-1.5 focus:outline-none font-bold">
+            <button onclick="togglePassword('login-password')" class="text-gray-400 text-xs px-1"><i class="fa-solid fa-eye-slash"></i></button>
+          </div>
+        </div>
+
+        <button onclick="submitLogin()" class="w-full bg-brandGreen hover:bg-[#00944e] text-white font-black py-3.5 rounded-xl transition text-xs">
+          Sign In
+        </button>
+      </div>
+
+      <!-- ─── VERIFICATION CODE SCREEN (Then Code Step) ─── -->
+      <div id="otp-fields" class="hidden flex flex-col gap-4">
+        <div class="text-center p-3 bg-white/5 rounded-2xl border border-white/5">
+          <p class="text-xs text-brandGreen font-bold">✓ Step 2: Verification Code</p>
+          <p class="text-[10px] text-gray-400 mt-1">We sent an SMS with your activation code to your phone number.</p>
+        </div>
+
+        <div>
+          <label class="text-xs text-gray-400 font-bold block mb-1.5">SMS Verification Code</label>
+          <div class="amole-input-container flex items-center px-4 py-1.5">
+            <input type="text" id="sms-code-input" placeholder="Enter 4-Digit Code" class="bg-transparent text-center font-mono font-bold tracking-widest text-sm w-full text-white py-1.5 focus:outline-none">
+          </div>
+          <span class="text-[10px] text-gray-500 block mt-1.5 text-center">Bypass activation code is <span class="text-brandGreen font-bold">1234</span></span>
+        </div>
+
+        <button onclick="verifySMSCode()" class="w-full bg-brandGreen hover:bg-[#00944e] text-white font-extrabold py-3.5 rounded-xl transition active:scale-95 text-xs">
+          Verify and Active Account
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ================= FLOATING REPLICATED LIVE CHAT WIDGET (FROM SCREENSHOT) ================= -->
+  <div class="fixed bottom-6 right-4 z-40 flex flex-col items-end gap-2.5">
+    
+    <!-- Collapsible Chat Dialog Window (Appears above the button) -->
+    <div id="chat-window" class="hidden w-72 h-80 bg-[#141a16] border border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+      <!-- Chat Header -->
+      <div class="bg-brandGreen text-white p-3 flex justify-between items-center font-bold text-xs">
+        <span>💬 Live Chat Assistance (Shamil)</span>
+        <button onclick="toggleChat()" class="text-sm">✕</button>
+      </div>
+      <!-- Messages Panel -->
+      <div id="chat-messages" class="flex-1 p-3 overflow-y-auto flex flex-col gap-2 text-[11px] no-scrollbar">
+        <div class="bg-brandGreen/10 text-white p-2.5 rounded-xl rounded-tl-none w-4/5 leading-relaxed">
+          Welcome to AmoleBet support! Deposit directly to Telebirr: <span class="text-brandGreen font-bold">0935140409</span> (Shamil). Share your Ref ID here if you need manual balance validation!
+        </div>
+      </div>
+    </div>
+
+    <!-- Replicated White Response Bubbles with Green Borders (From screenshot) -->
+    <div id="chat-quick-replies" class="flex flex-col items-end gap-1.5">
+      <!-- Text prompt -->
+      <div class="bg-white text-black text-[11px] font-semibold py-1.5 px-4 rounded-xl shadow-md border border-gray-200">
+        How can I help you?
+      </div>
+      <!-- Option 1 -->
+      <button onclick="handleQuickReply('I have a question')" class="bg-white text-gray-800 text-[11px] font-bold py-1.5 px-4 rounded-full border border-brandGreen hover:bg-gray-50 transition shadow-md">
+        I have a question
+      </button>
+      <!-- Option 2 -->
+      <button onclick="handleQuickReply('Tell me more')" class="bg-white text-gray-800 text-[11px] font-bold py-1.5 px-4 rounded-full border border-brandGreen hover:bg-gray-50 transition shadow-md">
+        Tell me more
+      </button>
+    </div>
+
+    <!-- Green Float Smiley Button with Red Notification Badge '1' -->
+    <button onclick="toggleChat()" class="w-12 h-12 rounded-full bg-brandGreen text-white flex items-center justify-center text-xl shadow-2xl relative hover:brightness-105 active:scale-95 transition">
+      <i class="fa-regular fa-comment-dots"></i>
+      <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-[10px] font-black rounded-full border-2 border-appDarkBg flex items-center justify-center">1</span>
+    </button>
+  </div>
+
+  <!-- ================= WEB APP USER CASINO GATEWAY (LOADS ON LOGIN SUCCESS) ================= -->
+  <div id="game-portal" class="hidden fixed inset-0 bg-[#0d110e] z-50 flex flex-col">
+    <!-- Casino Header -->
+    <header class="bg-[#141a16] p-4 flex justify-between items-center border-b border-white/5">
+      <span class="text-sm font-black text-white">amole<span class="text-brandGreen">bet</span></span>
+      <div class="bg-[#1b261f] border border-[#2d3e33] px-3 py-1.5 rounded-full flex items-center gap-1.5">
+        <span class="bg-brandGreen text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px]"><i class="fa-solid fa-coins"></i></span>
+        <span class="text-xs font-black text-white"><span id="live-user-balance">0.00</span> ETB</span>
+      </div>
+      <button onclick="logoutPortal()" class="text-xs bg-white/5 px-2.5 py-1.5 rounded border border-white/10">Log Out</button>
+    </header>
+
+    <!-- Virtual Casino Portal body -->
+    <main class="flex-1 p-5 flex flex-col justify-center gap-4 text-center max-w-sm mx-auto">
+      <div class="text-5xl">🎰</div>
+      <h2 class="text-xl font-black">AmoleBet Gaming Room</h2>
+      <p class="text-xs text-gray-400">Account successfully verified and activated! Load balance now via Telebirr transfer.</p>
+      
+      <!-- Copy-ready Telebirr instruction box -->
+      <div class="bg-brandCard border border-white/10 p-4 rounded-2xl flex flex-col gap-1.5 my-2">
+        <span class="text-[10px] text-gray-400 block font-bold">SEND DEPOSIT TO:</span>
+        <span class="text-lg text-[#ffc107] font-black font-mono">0935140409</span>
+        <span class="text-[10px] text-white font-black block">(SHAMIL)</span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <input type="number" id="deposit-input-amount" placeholder="Deposit Amount" class="bg-[#151916] border border-[#52462a] rounded-xl p-3 text-center text-xs font-bold focus:outline-none">
+        <button onclick="submitDemoDeposit()" class="bg-brandGreen hover:bg-[#00944e] text-white font-black text-xs py-3 rounded-xl transition">
+          Submit Telebirr Slip
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <!-- ================= SYSTEM ENGINE CODE SCRIPT ================= -->
+  <script>
+    // SYSTEM DATABASE STATE CONTROL
+    let userDatabase = JSON.parse(localStorage.getItem('amole_user_db')) || {};
+    let activePhone = localStorage.getItem('amole_active_phone') || "";
+    let isAuthorized = localStorage.getItem('amole_is_authorized') === 'true';
+
+    // Signup workflow values
+    let tempPhoneNum = "";
+    let tempPass = "";
+
+    function appSetup() {
+      if (isAuthorized && activePhone && userDatabase[activePhone]) {
+        document.getElementById('game-portal').classList.remove('hidden');
+        document.getElementById('live-user-balance').innerText = userDatabase[activePhone].balance.toFixed(2);
+      } else {
+        document.getElementById('game-portal').classList.add('hidden');
+      }
+    }
+
+    // AUTH SWITCH PILLS CONTROLLERS
+    function switchAuthTab(tab) {
+      document.getElementById('otp-fields').classList.add('hidden');
+      if (tab === 'signin') {
+        document.getElementById('signin-fields').classList.remove('hidden');
+        document.getElementById('signup-fields').classList.add('hidden');
+        document.getElementById('tab-btn-signin').className = "py-2.5 rounded-lg text-xs font-bold bg-tabSelected text-white border border-white/5";
+        document.getElementById('tab-btn-signup').className = "py-2.5 rounded-lg text-xs font-bold text-gray-400";
+      } else {
+        document.getElementById('signup-fields').classList.remove('hidden');
+        document.getElementById('signin-fields').classList.add('hidden');
+        document.getElementById('tab-btn-signup').className = "py-2.5 rounded-lg text-xs font-bold bg-tabSelected text-white border border-white/5";
+        document.getElementById('tab-btn-signin').className = "py-2.5 rounded-lg text-xs font-bold text-gray-400";
+      }
+    }
+
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    // REGISTRATION STEP 1
+    function requestVerificationSMS() {
+      const phoneInput = document.getElementById('reg-phone').value.trim();
+      const pwd = document.getElementById('reg-password').value.trim();
+      const confirm = document.getElementById('reg-confirm').value.trim();
+
+      if (!phoneInput || !pwd || !confirm) {
+        alert("Please fill in your phone number and password.");
+        return;
+      }
+      if (pwd !== confirm) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      // Lock temporary registration variables
+      tempPhoneNum = "+251" + phoneInput.replace(/^0+/, ''); 
+      tempPass = pwd;
+
+      // Transition to code input
+      document.getElementById('signup-fields').classList.add('hidden');
+      document.getElementById('otp-fields').classList.remove('hidden');
+    }
+
+    // REGISTRATION STEP 2 (Code check)
+    function verifySMSCode() {
+      const otpCode = document.getElementById('sms-code-input').value.trim();
+      if (otpCode !== "1234") {
+        alert("Incorrect verification code. Please enter: 1234");
+        return;
+      }
+
+      // Check duplicate accounts
+      if (userDatabase[tempPhoneNum]) {
+        alert("This phone number is already registered. Please sign in instead.");
+        switchAuthTab('signin');
+        return;
+      }
+
+      // Save user to memory
+      userDatabase[tempPhoneNum] = {
+        password: tempPass,
+        balance: 100.00 // Free signup gift
+      };
+      localStorage.setItem('amole_user_db', JSON.stringify(userDatabase));
+
+      activePhone = tempPhoneNum;
+      isAuthorized = true;
+      localStorage.setItem('amole_active_phone', activePhone);
+      localStorage.setItem('amole_is_authorized', 'true');
+
+      appSetup();
+    }
+
+    function submitLogin() {
+      const phone = "+251" + document.getElementById('login-phone').value.trim().replace(/^0+/, '');
+      const pwd = document.getElementById('login-password').value.trim();
+
+      if (!userDatabase[phone] || userDatabase[phone].password !== pwd) {
+        alert("Incorrect phone number or password.");
+        return;
+      }
+
+      activePhone = phone;
+      isAuthorized = true;
+      localStorage.setItem('amole_active_phone', activePhone);
+      localStorage.setItem('amole_is_authorized', 'true');
+
+      appSetup();
+    }
+
+    function logoutPortal() {
+      isAuthorized = false;
+      localStorage.removeItem('amole_is_authorized');
+      appSetup();
+    }
+
+    function submitDemoDeposit() {
+      const amt = parseFloat(document.getElementById('deposit-input-amount').value);
+      if (isNaN(amt) || amt < 50) {
+        alert("Minimum deposit is 50 ETB.");
+        return;
+      }
+
+      userDatabase[activePhone].balance += amt;
+      localStorage.setItem('amole_user_db', JSON.stringify(userDatabase));
+      
+      alert(`Payment of ${amt} ETB approved! Your balance has updated.`);
+      appSetup();
+    }
+
+    // ================== LIVE HELP CHAT SCRIPT ==================
+    function toggleChat() {
+      const chatWin = document.getElementById('chat-window');
+      chatWin.classList.toggle('hidden');
+    }
+
+    function handleQuickReply(type) {
+      const area = document.getElementById('chat-messages');
+      
+      // Post user bubble
+      area.insertAdjacentHTML('beforeend', `
+        <div class="bg-brandCard border border-white/5 text-white p-2 rounded-xl rounded-tr-none w-4/5 self-end ml-auto text-right font-medium">
+          ${type}
+        </div>
+      `);
+
+      // Collapse option bubbles
+      document.getElementById('chat-quick-replies').classList.add('hidden');
+      document.getElementById('chat-window').classList.remove('hidden');
+
+      // Bot Response
+      setTimeout(() => {
+        let answerText = "";
+        if (type === 'I have a question') {
+          answerText = "Our chat operators are ready to assist you! For active balance questions, send a screen grab of your Telebirr payment reference to Shamil's telegram channel.";
+        } else {
+          answerText = "AmoleBet matches 100% of your initial deposits! Transfer any amount over 50 ETB to 0935140409 (Shamil) on Telebirr and submit your ticket code inside.";
+        }
+        
+        area.insertAdjacentHTML('beforeend', `
+          <div class="bg-brandGreen/10 text-white p-2.5 rounded-xl rounded-tl-none w-4/5 leading-relaxed mt-2">
+            ${answerText}
+          </div>
+        `);
+        area.scrollTop = area.scrollHeight;
+      }, 1000);
+    }
+
+    window.onload = () => {
+      appSetup();
+    };
+  </script>
+</body>
+</html>
